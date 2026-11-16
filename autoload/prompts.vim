@@ -450,7 +450,19 @@ function! s:send_draft(from, text) abort
   " Only its first line is read for a persona, #sources, @files and flags,
   " so a pasted @decorator, #comment or --flag further down stays text
   let [l:first, l:rest] = matchlist(a:text, '^\([^\n]*\)\n\=\(\_.*\)$')[1:2]
-  call timer_start(0, {-> s:send_from(a:from, l:first, l:rest, a:text)})
+  call timer_start(0, function('s:send_when_idle', [a:from, l:first, l:rest, a:text]))
+endfunction
+
+" A timer also fires in a :sleep, as fugitive's while git runs when the
+" window :wq goes to is its status: there the draft's window is still
+" closing, and the agent's can't open (E242). Inside an autocommand, it
+" tries again later
+function! s:send_when_idle(from, first, rest, text, ...) abort
+  if exists('*state') && state('x') =~# 'x'
+    call timer_start(10, function('s:send_when_idle', [a:from, a:first, a:rest, a:text]))
+    return
+  endif
+  call s:send_from(a:from, a:first, a:rest, a:text)
 endfunction
 
 " Without a selection, a draft asks from where you are once it is closed,
