@@ -208,8 +208,18 @@ function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
   if !has_key(l:opts, 'bufnr')
     wincmd p
   endif
+  " Once a Vim session: each one-off saying it would be noise
+  if l:name ==# 'copilot' && index(l:argv, '--allow-all') >= 0 && !s:warned_all
+    let s:warned_all = 1
+    echohl WarningMsg
+    echomsg 'vim-prompts: copilot one-offs run with --allow-all: every tool, path and URL,'
+          \ . ' with no judge (g:prompts_copilot_approval)'
+    echohl None
+  endif
   return 1
 endfunction
+
+let s:warned_all = 0
 
 function! s:oneoff_exit(state, job, status) abort
   let a:state.status = a:status

@@ -96,8 +96,9 @@ let g:prompts_copilot_approval = 'all'        " every tool, path and URL, no jud
 refuses the tools it doesn't judge safe, and every path and URL is allowed,
 as the judge doesn't review them. Without assisted approval in your plan
 nothing judges, so every tool runs. `all` starts it with `--allow-all`, for
-when you don't want experimental features on. Any other value is an error,
-and `assisted` is used.
+when you don't want experimental features on; the first one-off that runs
+with it in a Vim session says so. Any other value is an error, and
+`assisted` is used.
 
 ## The prompt it gets
 
