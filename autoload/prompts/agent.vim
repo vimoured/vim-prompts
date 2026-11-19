@@ -191,12 +191,16 @@ function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
     setlocal buftype=nofile bufhidden=hide noswapfile filetype=markdown
     execute 'silent file' fnameescape('ai-oneoff://' . s:asked)
     let b:prompts_oneoff = l:name . ': answering'
-    setlocal statusline=%f%=%{get(b:,'prompts_oneoff','')}\ 
+    setlocal statusline=%f%=%{get(b:,'prompts_oneoff','')}\
+    " The agent may print nothing for minutes, and a statusline plugin may
+    " hide the one above: line 1 says it is under way, the answer goes below
+    call setline(1, l:name . ' is answering… 0s')
     let l:bufnr = bufnr()
   endif
   " Output can still come in after the job exits: done waits for both
   let l:state = {'bufnr': l:bufnr, 'name': l:name, 'Done': get(l:opts, 'done', v:null),
-        \ 'comments': get(l:opts, 'comments', ''), 'status': v:null, 'closed': 0}
+        \ 'comments': get(l:opts, 'comments', ''), 'status': v:null, 'closed': 0,
+        \ 'start': reltime(), 'timer': -1}
   " err_io 'out' checks err_modifiable too, against the same buffer
   let l:modifiable = getbufvar(l:bufnr, '&modifiable')
   call job_start([&shell, &shellcmdflag, l:cmd], {
@@ -206,6 +210,7 @@ function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
         \ 'err_io': 'out', 'exit_cb': function('s:oneoff_exit', [l:state]),
         \ 'close_cb': function('s:oneoff_close', [l:state])})
   if !has_key(l:opts, 'bufnr')
+    let l:state.timer = timer_start(1000, function('s:oneoff_tick', [l:state]), {'repeat': -1})
     wincmd p
   endif
   " Once a Vim session: each one-off saying it would be noise
@@ -220,6 +225,19 @@ function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
 endfunction
 
 let s:warned_all = 0
+
+" A line that stays the same for minutes looks stalled
+function! s:oneoff_tick(state, timer) abort
+  if !bufloaded(a:state.bufnr)
+    call timer_stop(a:timer)
+    return
+  endif
+  call setbufline(a:state.bufnr, 1, a:state.name . ' is answering… ' . s:took(a:state))
+endfunction
+
+function! s:took(state) abort
+  return float2nr(reltimefloat(reltime(a:state.start))) . 's'
+endfunction
 
 function! s:oneoff_exit(state, job, status) abort
   let a:state.status = a:status
@@ -246,6 +264,22 @@ function! s:oneoff_done(state) abort
         \ . (l:saved >= 0 ? ', ' . l:saved . ' comment' . (l:saved == 1 ? '' : 's')
         \   . ' for :' . prompts#namespace() . 'Comments'
         \   : empty(a:state.comments) ? '' : ', no comments'))
+  call timer_stop(a:state.timer)
+  if !bufloaded(a:state.bufnr)
+    return
+  endif
+  let l:where = ': :buffer ' . bufname(a:state.bufnr)
+  if a:state.status
+    call setbufline(a:state.bufnr, 1, a:state.name . ' failed (' . a:state.status . ') after '
+          \ . s:took(a:state))
+    call prompts#error(a:state.name . ' failed (' . a:state.status . ')' . l:where)
+  else
+    call setbufline(a:state.bufnr, 1, a:state.name . ' answered in ' . s:took(a:state))
+    " Shown in this tab, its first line says so
+    if bufwinnr(a:state.bufnr) < 0
+      echomsg 'vim-prompts: ' . a:state.name . ' answered in ' . s:took(a:state) . l:where
+    endif
+  endif
   redrawstatus!
 endfunction
 

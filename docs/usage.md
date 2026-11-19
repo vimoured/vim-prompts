@@ -18,7 +18,11 @@ the [sources and files](sources/) you add, and a range or visual selection.
 - **Without `!`, a one-off** (`:'<,'>Ai what does this do`): the agent
   answers once, without asking you anything, into a scratch buffer below
   (`claude -p`, `copilot -p`). The answer comes in while you keep working,
-  and the statusline says when it's done. It needs a question or a persona
+  which can take minutes, as the agent prints nothing until it is done. The
+  buffer's first line counts the seconds (`claude is answering… 42s`), then
+  says `claude answered in 250s` or `claude failed (1) after 3s`. When it
+  ends with the buffer not shown in this tab, or fails, a message says so
+  and which `:buffer` to open. It needs a question or a persona
   with a task, since there is no session to ask in afterwards. Anything the
   agent would ask you about it doesn't do, so a one-off starts in `auto` mode
   (`g:prompts_oneoff_mode`), unless the persona or the ask names another.
