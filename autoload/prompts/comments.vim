@@ -252,7 +252,7 @@ function! s:show(bufnr, stay) abort
   endif
   execute 'aboveleft sbuffer' a:bufnr
   let &l:statusline = '%f%=%{get(b:,"prompts_answering",0)?"agent: answering":""}'
-        \ . '  :' . prompts#namespace() . 'Reply  :' . prompts#namespace() . 'Reply! in a session '
+        \ . '  :' . prompts#namespace() . 'Reply in a session  :' . prompts#namespace() . 'Reply! here '
   if a:stay
     wincmd p
   endif

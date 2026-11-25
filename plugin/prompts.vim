@@ -6,8 +6,8 @@ let g:loaded_prompts = 1
 let s:ns = prompts#namespace()
 " [/persona[:variant]] [#source[:arg]...] [@path...] [--<mode>-mode] [--bare] [--force]
 " [query] [-- text]: ask the persona (default: `default`) with its context
-" and the sources asked for, once, the answer in a buffer; with !, in a
-" session, and with nothing else, open the agent
+" and the sources asked for, in a session, and with nothing else, open the
+" agent; with !, once, the answer in a buffer
 execute 'command! -bang -range -nargs=* -complete=customlist,prompts#complete '
       \ . s:ns . ' call prompts#ask(<bang>0, <range>, <line1>, <line2>, <q-args>)'
 " The same, as a draft to edit; :w saves it, closing it sends it
@@ -39,13 +39,13 @@ execute 'command! ' . s:ns . 'Reviews call prompts#comments#list()'
 execute 'command! -nargs=? -complete=customlist,prompts#comments#complete '
       \ . s:ns . 'CommentsLoad call prompts#comments#review(<q-args>)'
 " A reply on the agent's comment under the cursor (or the current one of
-" :AiComments), answered as a one-off into the comment's thread; ! sends it
-" to a session instead
+" :AiComments), sent to a session; ! answers it as a one-off into the
+" comment's thread instead, as ! does for :Ai
 execute 'command! -bang -nargs=* -complete=customlist,prompts#complete '
-      \ . s:ns . 'Reply call prompts#comments#reply(<bang>0, <q-args>)'
+      \ . s:ns . 'Reply call prompts#comments#reply(!<bang>0, <q-args>)'
 " The same, in a draft: :w saves it, closing sends it
 execute 'command! -bang -nargs=* -complete=customlist,prompts#complete '
-      \ . s:ns . 'ReplyDraft call prompts#comments#reply_draft(<bang>0, <q-args>)'
+      \ . s:ns . 'ReplyDraft call prompts#comments#reply_draft(!<bang>0, <q-args>)'
 " That comment and what was said on it since
 execute 'command! ' . s:ns . 'Thread call prompts#comments#thread()'
 " Remove a value from the file that sets it
@@ -62,11 +62,12 @@ execute 'nnoremap <Plug>(prompts-rule) :<C-u>' . s:ns . 'Rule<Space>'
 execute 'xnoremap <Plug>(prompts-rule) :' . s:ns . 'Rule<Space>'
 
 " They leave :AiReply on the command line to finish, as fugitive-extras'
-" <Plug>(fugitive-extras-comment) does :Comment; -session ones send to a session (!)
-execute 'nnoremap <Plug>(prompts-reply) :<C-u>' . s:ns . 'Reply<Space>'
-execute 'nnoremap <Plug>(prompts-reply-draft) <Cmd>' . s:ns . 'ReplyDraft<CR>'
-execute 'nnoremap <Plug>(prompts-reply-session) :<C-u>' . s:ns . 'Reply!<Space>'
-execute 'nnoremap <Plug>(prompts-reply-draft-session) <Cmd>' . s:ns . 'ReplyDraft!<CR>'
+"" <Plug>(fugitive-extras-comment) does :Comment; the plain ones answer as a
+" one-off into the thread (!), the -session ones send to a session
+execute 'nnoremap <Plug>(prompts-reply) :<C-u>' . s:ns . 'Reply!<Space>'
+execute 'nnoremap <Plug>(prompts-reply-draft) <Cmd>' . s:ns . 'ReplyDraft!<CR>'
+execute 'nnoremap <Plug>(prompts-reply-session) :<C-u>' . s:ns . 'Reply<Space>'
+execute 'nnoremap <Plug>(prompts-reply-draft-session) <Cmd>' . s:ns . 'ReplyDraft<CR>'
 
 " In the window of :AiComments' list, = shows the thread of the comment under
 " the cursor; in other lists it is Vim's

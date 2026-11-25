@@ -112,8 +112,8 @@ function! s:resolve(stack, i) abort
       if empty(l:m)
         throw 'expected key: value, got: ' . l:line
       elseif l:m[1] ==# 'answer'
-        throw 'answer: is gone; :' . prompts#namespace() . ' asks once, :'
-              \ . prompts#namespace() . '! opens a session'
+        throw 'answer: is gone; :' . prompts#namespace() . ' opens a session, :'
+              \ . prompts#namespace() . '! asks once'
       elseif index(s:keys, l:m[1]) < 0
         throw 'unknown key ' . l:m[1]
       endif
