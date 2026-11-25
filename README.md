@@ -129,10 +129,11 @@ while you keep working, and its comments on your lines into `:AiComments`:
 Put together, an ask reads:
 
 ```
-:Ai /persona #context @files your question
+:Ai /persona #context @files =mode your question
 ```
 
-A selection, if you made one, always goes. `:Ai` refuses when there's no
+`=plan`, `=ask`, `=agent` or `=auto` picks the mode the agent starts in
+([modes](docs/agent.md#modes)). A selection, if you made one, always goes. `:Ai` refuses when there's no
 context to send. `<Tab>` completes everything.
 
 **If the agent left comments on your lines** (with vim-review), reply on one to go back and

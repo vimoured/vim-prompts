@@ -3,7 +3,7 @@
 ## :Ai
 
 ```
-:[range]Ai[!] [/persona[:variant]] [#source...] [@file...] [--<mode>-mode] [--bare] [--force] [query] [-- text]
+:[range]Ai[!] [/persona[:variant]] [#source...] [@file...] [=mode] [--bare] [--force] [query] [-- text]
 ```
 
 Asks the [persona](personas.md) (`/default` without one) with its context,
@@ -34,9 +34,11 @@ means a one-off on every command that asks.
 - **Nothing at all:** `:Ai` opens the agent, or goes back to the session
   it opened before. `:Ai!` alone is an error, as a one-off with nothing to
   ask.
-- **`--ask-mode`, `--plan-mode`, `--agent-mode` or `--auto-mode`**
-  (anywhere before `--`): the [mode](agent.md#modes) the agent starts in, over the persona's
-  and `g:prompts_mode` (`g:prompts_oneoff_mode` for a one-off). `:Ai --plan-mode` alone opens it bare that way.
+- **`=ask`, `=plan`, `=agent` or `=auto`** (anywhere before `--`): the
+  [mode](agent.md#modes) the agent starts in, over the persona's and
+  `g:prompts_mode` (`g:prompts_oneoff_mode` for a one-off). `:Ai =plan`
+  alone opens it bare that way. Any other `=word` is refused, so a typo
+  isn't sent as text. `--plan-mode` and the like still work.
 - **`--bare`** (anywhere before `--`): leaves the [rules](personas.md#rules)
   and the repository's description out, so only the persona, what you name
   (`+name` included) and your query go. `:Ai --bare question` sends the question alone.
@@ -49,10 +51,10 @@ means a one-off on every command that asks.
 
 ## Typing the query
 
-`<Tab>` completes `/personas` (first word), `#sources`, `@files` and the
-modes and `--bare`.
+`<Tab>` completes `/personas` (first word), `#sources`, `+rules`, `@files`,
+`=modes`, `--bare` and `--force`.
 
-Before `--`, an unknown `#word` or a missing `@file` is an error, so a typo
+Before `--`, an unknown `#word` or `=mode` or a missing `@file` is an error, so a typo
 isn't sent as text. After `--`, everything is your query as typed, so
 `#include`, `@decorator` or `--flags` need nothing special:
 
@@ -112,7 +114,7 @@ again with your text and the error.
 
 In the draft, `prompts#tokens()` lists every word it can take, but files:
 the personas, the sources with their arguments (`+testing`,
-`#diff_pairs:<name>`) and the flags, as `<Tab>` completes them after `:Ai`. Hand
+`#diff_pairs:<name>`), the modes and the flags, as `<Tab>` completes them after `:Ai`. Hand
 it to an insert-mode picker. For fzf.vim's, `prompts#fzf()` has them ready to
 pick several with `<Tab>`, inserted with a space between:
 
@@ -121,7 +123,7 @@ inoremap <expr> <C-x><C-a> fzf#vim#complete(prompts#fzf())
 ```
 
 The word before the cursor completes there as it does after `:Ai`: `#ch` to
-`#changes` and `#changes:`, `+` to the rules, `@src/` to files, `--p` to `--plan-mode`,
+`#changes` and `#changes:`, `+` to the rules, `@src/` to files, `=p` to `=plan`,
 one match inserted at once. A word that completes to nothing, or none, gives
 every word, filtered by what you typed. `#commits:` is left to
 `prompts#sources#commits#fzf()`, its own picker.
