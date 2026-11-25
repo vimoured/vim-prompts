@@ -4,7 +4,7 @@ endif
 let g:loaded_prompts = 1
 
 let s:ns = prompts#namespace()
-" [/persona[:variant]] [#source[:arg]...] [@path...] [--<mode>-mode] [--bare] [--force]
+" [/persona[:variant]] [#source[:arg]...] [@path...] [=mode] [--bare] [--force]
 " [query] [-- text]: ask the persona (default: `default`) with its context
 " and the sources asked for, in a session, and with nothing else, open the
 " agent; with !, once, the answer in a buffer
@@ -62,7 +62,7 @@ execute 'nnoremap <Plug>(prompts-rule) :<C-u>' . s:ns . 'Rule<Space>'
 execute 'xnoremap <Plug>(prompts-rule) :' . s:ns . 'Rule<Space>'
 
 " They leave :AiReply on the command line to finish, as fugitive-extras'
-"" <Plug>(fugitive-extras-comment) does :Comment; the plain ones answer as a
+" <Plug>(fugitive-extras-comment) does :Comment; the plain ones answer as a
 " one-off into the thread (!), the -session ones send to a session
 execute 'nnoremap <Plug>(prompts-reply) :<C-u>' . s:ns . 'Reply!<Space>'
 execute 'nnoremap <Plug>(prompts-reply-draft) <Cmd>' . s:ns . 'ReplyDraft!<CR>'

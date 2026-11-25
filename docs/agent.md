@@ -54,7 +54,7 @@ A session starts in `ask` and a one-off (`:Ai!`) in `auto` unless you say
 otherwise, as a one-off has no one to ask: whatever would ask, it doesn't
 do. The first of these that applies:
 
-1. `--ask-mode`, `--plan-mode`, `--agent-mode` or `--auto-mode` in the ask.
+1. `=ask`, `=plan`, `=agent` or `=auto` in the ask.
 2. The persona's `mode:` (`/review` has `mode: ask`).
 3. `g:prompts_mode` for a session, `g:prompts_oneoff_mode` for a one-off.
 
@@ -64,9 +64,9 @@ let g:prompts_oneoff_mode = 'ask'    " the default is 'auto'
 ```
 
 ```vim
-:'<,'>Ai --plan-mode how would you split this
-:Ai /review --agent-mode fix what you find
-:Ai --plan-mode
+:'<,'>Ai =plan how would you split this
+:Ai /review =agent fix what you find
+:Ai =plan
 ```
 
 Switch modes in the session as usual (Shift+Tab in both).

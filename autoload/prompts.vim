@@ -154,6 +154,15 @@ function! s:choose(request) abort
   return a:request
 endfunction
 
+" The mode a word asks for, '' when it asks for none: =plan, or the
+" --plan-mode it stands for
+let s:modes = ['agent', 'ask', 'auto', 'plan']
+let s:mode_word = '^\%(=\(' . join(s:modes, '\|') . '\)\|--\(' . join(s:modes, '\|') . '\)-mode\)$'
+
+function! s:mode(word) abort
+  return join(matchlist(a:word, s:mode_word)[1:2], '')
+endfunction
+
 " 1 once the ask is under way, 0 when it stopped at an error. A draft's
 " lines after its first come as {rest}, and are taken as written
 function! s:prompt(from, args, Then, ...) abort
@@ -206,8 +215,12 @@ function! s:prompt(from, args, Then, ...) abort
         endif
         let l:parsed.files += map(l:files, 'fnamemodify(v:val, ":p")')
       endif
-    elseif l:word =~# '^--\%(ask\|plan\|agent\|auto\)-mode$'
-      let l:parsed.mode = matchstr(l:word, '\a\+', 2)
+    elseif l:word =~# s:mode_word
+      let l:parsed.mode = s:mode(l:word)
+    elseif l:word =~# '^=\a'
+      call prompts#error(l:word . ': the modes are ' . join(map(copy(s:modes), '"=" . v:val'), ', ')
+            \ . '; text after -- is taken as is')
+      return 0
     elseif l:word ==# '--bare'
       let l:parsed.bare = 1
     elseif l:word ==# '--force'
@@ -297,7 +310,7 @@ function! s:finish(persona, request, parsed, files, Then) abort
   return 1
 endfunction
 
-"" Whether an ask goes as a one-off: a reply says; from :Ai, a session
+" Whether an ask goes as a one-off: a reply says; from :Ai, a session
 " unless ! asks for a one-off
 function! s:oneoff(from, persona) abort
   return has_key(a:from, 'oneoff') ? a:from.oneoff : get(a:from, 'bang', 0)
@@ -306,10 +319,11 @@ endfunction
 " Arguments with which :Ai sends nothing: :Ai opens the agent, and :Ai! has
 " nothing to ask
 function! s:opens_only(range, args) abort
-  return !a:range && a:args =~# '^\%(\s*--\%(\%(ask\|plan\|agent\|auto\)-mode\|bare\|force\)\)*\s*$'
+  return !a:range && empty(filter(split(a:args),
+        \ 'v:val !~# s:mode_word && index(["--bare", "--force"], v:val) < 0'))
 endfunction
 
-"" A session; with !, a one-off, where the agent answers once into a buffer
+" A session; with !, a one-off, where the agent answers once into a buffer
 let s:nothing_to_ask = ':' . prompts#namespace() . '! asks once and needs something to ask; :'
       \ . prompts#namespace() . ' opens a session'
 
@@ -318,7 +332,8 @@ function! prompts#ask(bang, range, line1, line2, args) abort
     if a:bang
       call prompts#error(s:nothing_to_ask)
     else
-      call prompts#agent#launch('', {'mode': matchstr(a:args, '--\zs\a\+\ze-mode')}, [])
+      call prompts#agent#launch('', {'mode': get(filter(map(split(a:args), 's:mode(v:val)'),
+            \ '!empty(v:val)'), -1, '')}, [])
     endif
     return
   endif
@@ -498,8 +513,10 @@ function! prompts#complete(lead, cmdline, pos) abort
     return map(prompts#sources#rule#complete(a:lead[1:]), '"+" . v:val')
   elseif a:lead =~# '^@'
     return map(getcompletion(a:lead[1:], 'file'), '"@" . v:val')
+  elseif a:lead =~# '^='
+    return filter(map(copy(s:modes), '"=" . v:val'), 'stridx(v:val, a:lead) == 0')
   elseif a:lead =~# '^-'
-    return filter(['--agent-mode', '--ask-mode', '--auto-mode', '--bare', '--force', '--plan-mode'], 'stridx(v:val, a:lead) == 0')
+    return filter(['--bare', '--force'], 'stridx(v:val, a:lead) == 0')
   elseif a:lead =~# '^/' && a:cmdline[: a:pos - 1] =~# '^\S*\s\+\S*$'
     " A persona with variants twice, as #changes completes: /review, and
     " /review: to go on to /review:pr
@@ -524,7 +541,8 @@ function! prompts#tokens() abort
           \ : prompts#complete(l:token, '', 0)
     let l:tokens += (l:token =~# ':$' && !empty(l:args) ? [] : [l:token]) + l:args
   endfor
-  return l:tokens + prompts#complete('+', '', 0) + prompts#complete('-', '', 0)
+  return l:tokens + prompts#complete('+', '', 0) + prompts#complete('=', '', 0)
+        \ + prompts#complete('-', '', 0)
 endfunction
 
 " For an insert-mode fzf.vim picker: several at once, with <Tab>. The word
