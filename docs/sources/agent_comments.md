@@ -80,9 +80,14 @@ on its comment.
 A reply is an ask: it takes `/persona`, `#source`, `@file` and the flags
 as `:Ai` does, and your rules go with it. What it sends first is the
 comment, the lines it is on as they are now, and the thread so far, so the
-agent answers on that comment alone, without a session to remember it.
+agent starts on that comment alone.
 
-The agent answers as a one-off (`claude -p`, `copilot -p`): the thread
+A reply opens a session, briefed that way, as `:Ai` does: for when the
+answer is "fix it". The thread notes the reply; the answer is in the
+session.
+
+With `!` (`:AiReply!`, `:AiReplyDraft!`), the agent answers as a one-off
+(`claude -p`, `copilot -p`), without a session to remember it: the thread
 opens above, the answer comes into it while you keep working, and the
 statusline says when it's done. The thread is a file,
 `<git dir>/vim-prompts/comments/<time>/<n>.md` for the file's `n`th
@@ -90,16 +95,12 @@ comment, so it is there the next time you load the comments. If a reply
 can't go, `:AiReply` keeps its text for the next reply on the comment, and
 a draft opens again with it.
 
-With `!` (`:AiReply!`, `:AiReplyDraft!`), the reply opens a session
-instead, briefed the same way, for when the answer is "fix it". The thread
-notes the reply; the answer is in the session.
-
 To take a reply you're typing to a draft, change `AiReply` to
 `AiReplyDraft` on the command line and press Enter. To bind fugitive-extras'
-`:Comment` keys, `<Plug>(prompts-reply)` leaves `:AiReply ` on the command line and
-`<Plug>(prompts-reply-draft)` is `:AiReplyDraft`;
+`:Comment` keys, `<Plug>(prompts-reply)` leaves `:AiReply! ` on the command line and
+`<Plug>(prompts-reply-draft)` is `:AiReplyDraft!`, a one-off into the thread;
 `<Plug>(prompts-reply-session)` and `<Plug>(prompts-reply-draft-session)`
-are the same with `!`, to a session. In the list, where every quickfix
+are the same without `!`, to a session. In the list, where every quickfix
 window is `qf`, `prompts#comments#in_list()` tells the agent's comments from
 the others; a thread's buffer is `ai-thread://…`:
 
@@ -115,7 +116,7 @@ nmap <leader>cr <Plug>(prompts-reply)
 
 ## In a one-off
 
-A one-off (`:Ai` without `!`, `:Ai /review` among them)
+A one-off (`:Ai!`, `:Ai! /review` among them)
 can't be let write a file, as there is no one to ask. So the agent puts its
 comments in a block at the end of its answer instead, opened with
 ` ```vim-prompts-comments `, in the same format. Once the answer is in,

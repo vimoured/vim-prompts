@@ -30,7 +30,7 @@ once. `:AiPersonas` lists where every persona comes from.
 | Persona | Context | Does |
 | --- | --- | --- |
 | `/default` | | Your query, the selection, and what you add. Used without a `/persona`. |
-| `/review` | `#agent_comments` | Reviews what you give it (a selection, `@files`, `#changes`, …), and answers your comments if you add `#comments`; refused with nothing to review (`input: required`). As a one-off (`:Ai /review`), the answer in a buffer and its comments back as a list for `:AiComments`. Ask mode. |
+| `/review` | `#agent_comments` | Reviews what you give it (a selection, `@files`, `#changes`, …), and answers your comments if you add `#comments`; refused with nothing to review (`input: required`). As a one-off (`:Ai! /review`), the answer in a buffer and its comments back as a list for `:AiComments`. Ask mode. |
 | `/review:pr` | `[#diff_pairs, #changes]` | [A variant](#variants) of `/review`: the diffs you have open, else your branch's changes. |
 
 ## Where personas go

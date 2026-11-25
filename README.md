@@ -7,13 +7,12 @@ Use your coding agent ([Claude Code](https://claude.com/claude-code) or
 :'<,'>Ai why is this loop reversed
 ```
 
-asks the agent once about the lines you selected and puts its answer in a
-buffer below, while you keep working. With a `!`, `:'<,'>Ai!` opens the agent
-already holding your question and those lines, and you carry on the
-conversation there.
+opens the agent already holding your question and the lines you selected,
+and you carry on the conversation there. With a `!`, `:'<,'>Ai!` asks it
+once and puts its answer in a buffer below, while you keep working.
 
 - **The agent runs next to your code.** In a Vim terminal tab, or a tmux
-  window under tmux; `:Ai!` alone takes you back to it.
+  window under tmux; `:Ai` alone takes you back to it.
 - **You say what it sees.** A short syntax hands it what Vim knows: a
   selection, `@files`, the change on your branch (`#changes`), your review
   comments (`#comments`). Nothing else is sent, but the rules you set.
@@ -91,14 +90,14 @@ Each step adds one thing to the one before it; stop at whichever is enough.
 :'<,'>Ai why is this loop reversed
 ```
 
-The agent answers once, into a scratch buffer below, while you keep working;
-the statusline says when it's done.
+The agent opens with your question and the lines. Carry on the
+conversation there; `:Ai` alone brings you back to it, and `/exit` or
+Ctrl-D leaves it. Only this first prompt is sent from Vim.
 
-**If you want a conversation,** add a `!`: `:'<,'>Ai! why is this loop
-reversed` opens the agent with your question and the lines. Carry on the
-conversation there; `:Ai!` alone brings you back to it, and `/exit` or
-Ctrl-D leaves it. Only this first prompt is sent from Vim. Every ask works
-this way: without `!` a one-off, with `!` a session
+**If you only want an answer,** add a `!`: `:'<,'>Ai! what does this
+return on an empty list` asks once and puts the answer in a scratch buffer
+below, while you keep working; the statusline says when it's done. Every
+ask works this way: without `!` a session, with `!` a one-off
 ([usage](docs/usage.md#ai)).
 
 **If you don't want to write a question,** use a persona, a saved prompt
@@ -109,14 +108,14 @@ your query but your rules.
 brings in the diffs you have open, else your branch, committed or not;
 `#changes:staged` narrows it to what's staged, `#changes:unstaged` to what
 isn't yet. `/review` reviews what you
-give it, a selection or `@files`. The answer comes into a buffer below
-while you keep working, and its comments on your lines into `:AiComments`.
-`:Ai! /review` opens a session instead, to go on from:
+give it, a selection or `@files`, in a session to go on from.
+`:Ai! /review` asks once instead: the answer comes into a buffer below
+while you keep working, and its comments on your lines into `:AiComments`:
 
 ```vim
 :Ai /review:pr is the error handling consistent
-:Ai /review:pr #changes:staged
-:'<,'>Ai /review
+:Ai! /review:pr #changes:staged
+:'<,'>Ai! /review
 ```
 
 **If it needs more than that,** add files with `@` and other context with `#`
@@ -138,7 +137,8 @@ context to send. `<Tab>` completes everything.
 
 **If the agent left comments on your lines** (with vim-review), reply on one to go back and
 forth on it alone: `:AiReplyDraft` on it in the `:AiComments` list writes a
-reply, the agent answers as a one-off into that comment's thread, and `=` shows the
+reply and opens a session with it; `:AiReplyDraft!` has the agent answer
+as a one-off into that comment's thread instead, and `=` shows the
 thread ([replying](docs/sources/agent_comments.md#replying)).
 
 **If your ask is longer than a command line** (with vim-draft), `:AiDraft` opens it in a

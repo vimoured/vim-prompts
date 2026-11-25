@@ -297,28 +297,28 @@ function! s:finish(persona, request, parsed, files, Then) abort
   return 1
 endfunction
 
-" Whether an ask goes as a one-off: a reply says; from :Ai, it is one
-" unless ! asks for a session
+"" Whether an ask goes as a one-off: a reply says; from :Ai, a session
+" unless ! asks for a one-off
 function! s:oneoff(from, persona) abort
-  return has_key(a:from, 'oneoff') ? a:from.oneoff : !get(a:from, 'bang', 0)
+  return has_key(a:from, 'oneoff') ? a:from.oneoff : get(a:from, 'bang', 0)
 endfunction
 
-" Arguments with which :Ai sends nothing: :Ai! opens the agent, and :Ai has
+" Arguments with which :Ai sends nothing: :Ai opens the agent, and :Ai! has
 " nothing to ask
 function! s:opens_only(range, args) abort
   return !a:range && a:args =~# '^\%(\s*--\%(\%(ask\|plan\|agent\|auto\)-mode\|bare\|force\)\)*\s*$'
 endfunction
 
-" A one-off, where the agent answers once into a buffer; with !, a session
-let s:nothing_to_ask = ':' . prompts#namespace() . ' asks once and needs something to ask; :'
-      \ . prompts#namespace() . '! opens a session'
+"" A session; with !, a one-off, where the agent answers once into a buffer
+let s:nothing_to_ask = ':' . prompts#namespace() . '! asks once and needs something to ask; :'
+      \ . prompts#namespace() . ' opens a session'
 
 function! prompts#ask(bang, range, line1, line2, args) abort
   if s:opens_only(a:range, a:args)
     if a:bang
-      call prompts#agent#launch('', {'mode': matchstr(a:args, '--\zs\a\+\ze-mode')}, [])
-    else
       call prompts#error(s:nothing_to_ask)
+    else
+      call prompts#agent#launch('', {'mode': matchstr(a:args, '--\zs\a\+\ze-mode')}, [])
     endif
     return
   endif
@@ -333,7 +333,7 @@ function! s:sent(oneoff, persona, request, prompt) abort
     " There is no session to ask the question in afterwards
     if empty(trim(a:prompt)) || a:persona.name ==# 'default' && empty(a:request.query)
       call prompts#error('a one-off needs a question or a persona; :' . prompts#namespace()
-            \ . '! opens a session with it')
+            \ . ' without ! opens a session with it')
       return [0, '']
     endif
     return [1, a:prompt]
@@ -385,9 +385,9 @@ endfunction
 function! prompts#preview(bang, range, line1, line2, args) abort
   if s:opens_only(a:range, a:args)
     if a:bang
-      echomsg 'vim-prompts: :' . prompts#namespace() . '! with these sends nothing: it opens the agent'
-    else
       call prompts#error(s:nothing_to_ask)
+    else
+      echomsg 'vim-prompts: :' . prompts#namespace() . ' with these sends nothing: it opens the agent'
     endif
     return
   endif

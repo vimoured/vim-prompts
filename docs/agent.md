@@ -31,10 +31,10 @@ let g:prompts_start_mods = 'tab'   " or 'vertical', or '' for a split
 
 In a Vim terminal your keys go to the agent. Leave it with `/exit` (Claude) or
 Ctrl-D, which closes the tab. Or press `Ctrl-\ Ctrl-n` for normal mode, then
-`gt` to another tab, `:q` to hide it, or `:bwipe!` to end it. `:Ai!` alone goes
+`gt` to another tab, `:q` to hide it, or `:bwipe!` to end it. `:Ai` alone goes
 back to the session it opened.
 
-That is a session, what `:Ai!` opens. A one-off (`:Ai` without `!`) runs in
+That is a session, what `:Ai` opens. A one-off (`:Ai!`) runs in
 the background instead, its answer going to a
 scratch buffer opened `botright`; `g:prompts_oneoff_mods` changes that
 (`'vertical botright'`, `'tab'`).
@@ -50,7 +50,7 @@ The agent starts in one of four modes:
 | `agent` | edits without asking (commands still ask) | `--permission-mode acceptEdits` | `--allow-tool=write` |
 | `auto` | runs what a model judges safe, asks otherwise | `--permission-mode auto` | (its config; a one-off: `g:prompts_copilot_approval`) |
 
-A session starts in `ask` and a one-off (`:Ai`) in `auto` unless you say
+A session starts in `ask` and a one-off (`:Ai!`) in `auto` unless you say
 otherwise, as a one-off has no one to ask: whatever would ask, it doesn't
 do. The first of these that applies:
 
@@ -118,7 +118,7 @@ prompt after Vim exits.
 ## Another CLI
 
 The built-in agents start as `claude [args] <prompt> [--add-dir dir...]` and
-`copilot [args] -i <prompt> [--add-dir dir...]`; a one-off (`:Ai`) puts
+`copilot [args] -i <prompt> [--add-dir dir...]`; a one-off (`:Ai!`) puts
 `-p` where `-i` goes, for both. Add one, or change these,
 with `g:prompts_agent_table`:
 
