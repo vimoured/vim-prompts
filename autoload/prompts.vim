@@ -372,10 +372,20 @@ function! s:ask(persona, request, prompt) abort
   endif
   if a:request.oneoff
     call prompts#agent#oneoff(l:prompt, a:persona.meta, a:request.dirs,
-          \ {'comments': get(a:request, 'comments', '')})
+          \ {'comments': get(a:request, 'comments', ''), 'asked': s:asked(a:persona, a:request)})
   else
     call prompts#agent#launch(l:prompt, a:persona.meta, a:request.dirs)
   endif
+endfunction
+
+" What you asked, as lines: the query, after the persona unless it is the
+" default
+function! s:asked(persona, request) abort
+  let l:lines = empty(a:request.query) ? [] : split(a:request.query, "\n", 1)
+  if a:persona.name !=# 'default'
+    let l:lines = ['/' . a:persona.name . (empty(l:lines) ? '' : ' ' . l:lines[0])] + l:lines[1:]
+  endif
+  return l:lines
 endfunction
 
 " An ask made from elsewhere, as a reply to the agent's comment is: from
