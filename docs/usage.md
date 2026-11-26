@@ -21,7 +21,9 @@ means a one-off on every command that asks.
   (`claude -p`, `copilot -p`). The answer comes in while you keep working,
   which can take minutes, as the agent prints nothing until it is done. The
   buffer's first line counts the seconds (`claude is answering… 42s`), then
-  says `claude answered in 250s` or `claude failed (1) after 3s`. When it
+  says `claude answered in 250s` or `claude failed (1) after 3s`. Below it,
+  under `## me`, is what you asked (the persona and your question, not the
+  context sent with them), and under `## agent` the answer. When it
   ends with the buffer not shown in this tab, or fails, a message says so
   and which `:buffer` to open. It needs a question or a persona
   with a task, since there is no session to ask in afterwards. Anything the

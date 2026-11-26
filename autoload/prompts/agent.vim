@@ -174,7 +174,8 @@ endfunction
 " The agent answers once, in the background, into a scratch buffer; with
 " {opts}, into opts.bufnr, and opts.done(status) is called once all of the
 " answer is in. With opts.comments, the comments it lists (#agent_comments)
-" go to that file then
+" go to that file then. opts.asked, lines, go above the answer in its own
+" buffer, as what you asked
 function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
   let l:opts = get(a:, 1, {})
   let l:command = prompts#agent#command(a:meta, a:dirs, 1)
@@ -195,6 +196,11 @@ function! prompts#agent#oneoff(prompt, meta, dirs, ...) abort
     " The agent may print nothing for minutes, and a statusline plugin may
     " hide the one above: line 1 says it is under way, the answer goes below
     call setline(1, l:name . ' is answering… 0s')
+    " What you asked, which the prompt buries under its context, and a
+    " session's TUI shows on top
+    if !empty(get(l:opts, 'asked', []))
+      call append(1, ['', '## me', ''] + l:opts.asked + ['', '## agent', ''])
+    endif
     let l:bufnr = bufnr()
   endif
   " Output can still come in after the job exits: done waits for both
